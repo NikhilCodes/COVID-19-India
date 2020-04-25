@@ -15,9 +15,7 @@ class SplashScreen extends StatelessWidget {
         onSuccess: (data) async {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => MyHomePage(
-                futureData: getFutureData(),
-              ),
+              builder: (context) => MyHomePage(),
             ),
           );
         },

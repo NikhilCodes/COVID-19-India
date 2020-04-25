@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class RoundedTile extends StatefulWidget {
-  RoundedTile({Key key, @required this.child, @required this.oneTap}) : super(key: key);
+  RoundedTile({Key key, @required this.child, this.oneTap}) : super(key: key);
 
   final Widget child;
   final Function oneTap;

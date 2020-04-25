@@ -20,6 +20,7 @@ dependencies:
   flutter_circular_chart:
   flare_loading:
   cached_network_image:
+  bezier_chart:
   http:
   flutter:
     sdk: flutter

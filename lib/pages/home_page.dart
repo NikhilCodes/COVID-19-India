@@ -2,16 +2,13 @@ import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:covid19tracker/helper_functions.dart';
+import 'package:covid19tracker/pages/growthtrends_page.dart';
 import 'package:covid19tracker/special_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.futureData}) : super(key: key);
-
-  final Future futureData;
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -25,11 +22,9 @@ class _MyHomePageState extends State<MyHomePage> {
       deltaDeceasedCases;
 
   List<Widget> top7StatesActiveTextWidgets;
-  Future futureData;
 
   @override
   Widget build(BuildContext context) {
-    futureData = widget.futureData;
     return Scaffold(
       backgroundColor: Color.fromRGBO(235, 240, 255, 1),
       appBar: AppBar(
@@ -410,6 +405,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                           oneTap: () {
                             print("Tap1");
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => TotalGrowthTrends(),
+                              ),
+                            );
                           },
                         ),
                         SizedBox(height: 30),
