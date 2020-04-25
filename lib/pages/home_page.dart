@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:covid19tracker/helper_functions.dart';
 import 'package:covid19tracker/special_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,14 +21,15 @@ class _MyHomePageState extends State<MyHomePage> {
       totalRecoveredCases,
       totalDeceasedCases,
       totalCases,
-      deltaActiveCases,
       deltaRecoveredCases,
       deltaDeceasedCases;
 
   List<Widget> top7StatesActiveTextWidgets;
+  Future futureData;
 
   @override
   Widget build(BuildContext context) {
+    futureData = widget.futureData;
     return Scaffold(
       backgroundColor: Color.fromRGBO(235, 240, 255, 1),
       appBar: AppBar(
@@ -37,11 +39,12 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               "COVID-19",
               style: TextStyle(
-                  fontFamily: "Rubik",
-                  color: Colors.deepPurple,
-                  letterSpacing: 2,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 22),
+                fontFamily: "Rubik",
+                color: Colors.deepPurple,
+                letterSpacing: 2,
+                fontWeight: FontWeight.w800,
+                fontSize: 22,
+              ),
             ),
             SizedBox(width: 5),
             Text(
@@ -96,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             SizedBox(height: 25),
             FutureBuilder(
-              future: widget.futureData,
+              future: getFutureData(),
               builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                 if (snapshot.hasData) {
                   totalActiveCases =
@@ -109,8 +112,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       totalDeceasedCases +
                       totalRecoveredCases;
 
-                  deltaActiveCases = int.parse(
-                      snapshot.data['statewise'][0]["deltaconfirmed"]);
                   deltaRecoveredCases = int.parse(
                       snapshot.data['statewise'][0]["deltarecovered"]);
                   deltaDeceasedCases =
@@ -277,27 +278,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                           ),
                                         ],
                                       ),
-                                      Row(
-                                        children: <Widget>[
-                                          Text(
-                                            (totalActiveCases -
-                                                    deltaActiveCases)
-                                                .toString(),
-                                            style: TextStyle(
-                                              color: Colors.grey.shade700,
-                                              fontFamily: "Rubik",
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                          Text(
-                                            " + $deltaActiveCases",
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontFamily: "Rubik",
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ],
+                                      Text(
+                                        totalActiveCases.toString(),
+                                        style: TextStyle(
+                                          color: Colors.grey.shade700,
+                                          fontFamily: "monospace",
+                                          fontSize: 16,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -307,6 +294,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                         MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
                                       Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
                                         children: <Widget>[
                                           Container(
                                             decoration: BoxDecoration(
@@ -331,19 +320,26 @@ class _MyHomePageState extends State<MyHomePage> {
                                       Row(
                                         children: <Widget>[
                                           Text(
-                                            (totalRecoveredCases -
-                                                    deltaRecoveredCases)
-                                                .toString(),
-                                            style: TextStyle(
-                                                color: Colors.grey.shade700,
-                                                fontFamily: "Rubik",
-                                                fontSize: 16),
-                                          ),
-                                          Text(
-                                            " + $deltaRecoveredCases",
+                                            "$deltaRecoveredCases",
                                             style: TextStyle(
                                               color: Colors.green,
                                               fontFamily: "Rubik",
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Icon(
+                                            Icons.arrow_upward,
+                                            size: 17,
+                                            color: Colors.green,
+                                          ),
+                                          Text(
+                                            totalRecoveredCases
+                                                .toString()
+                                                .padLeft(7),
+                                            style: TextStyle(
+                                              color: Colors.grey.shade700,
+                                              fontFamily: "monospace",
                                               fontSize: 16,
                                             ),
                                           ),
@@ -371,29 +367,36 @@ class _MyHomePageState extends State<MyHomePage> {
                                           Text(
                                             "Deceased",
                                             style: TextStyle(
-                                                color: Colors.grey.shade700,
-                                                fontFamily: "Rubik",
-                                                fontSize: 16),
+                                              color: Colors.grey.shade700,
+                                              fontFamily: "Rubik",
+                                              fontSize: 16,
+                                            ),
                                           ),
                                         ],
                                       ),
                                       Row(
                                         children: <Widget>[
                                           Text(
-                                            (totalDeceasedCases -
-                                                    deltaDeceasedCases)
-                                                .toString(),
-                                            style: TextStyle(
-                                              color: Colors.grey.shade700,
-                                              fontFamily: "Rubik",
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                          Text(
-                                            " + $deltaDeceasedCases",
+                                            "$deltaDeceasedCases",
                                             style: TextStyle(
                                               color: Colors.redAccent,
                                               fontFamily: "Rubik",
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Icon(
+                                            Icons.arrow_upward,
+                                            size: 17,
+                                            color: Colors.redAccent,
+                                          ),
+                                          Text(
+                                            totalDeceasedCases
+                                                .toString()
+                                                .padLeft(7),
+                                            style: TextStyle(
+                                              color: Colors.grey.shade700,
+                                              fontFamily: "monospace",
                                               fontSize: 16,
                                             ),
                                           ),
@@ -405,6 +408,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ],
                           ),
+                          oneTap: () {
+                            print("Tap1");
+                          },
                         ),
                         SizedBox(height: 30),
                         RoundedTile(
@@ -442,6 +448,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ],
                           ),
+                          oneTap: () {
+                            print("Tap");
+                          },
                         ),
                         SizedBox(height: 30),
                       ],
