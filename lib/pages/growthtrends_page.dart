@@ -1,7 +1,8 @@
-import 'package:bezier_chart/bezier_chart.dart';
 import 'package:covid19tracker/helper_functions.dart';
 import 'package:covid19tracker/special_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:bezier_chart/bezier_chart.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 class TotalGrowthTrends extends StatefulWidget {
   @override
@@ -56,17 +57,15 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
             return Center(child: CircularProgressIndicator());
           }
 
-          double hash;
-          List<double> xAxisCustomValuesHash = [];
-          List<DataPoint<double>> dataPoints = [];
+          int hash;
+          List<PandemicData> dataPoints = [];
 
           snapshot.data["cases_time_series"].forEach((element) {
-            hash = dateHash(element["date"]).toDouble();
-            xAxisCustomValuesHash.add(hash);
+            hash = dateHash(element["date"]);
             dataPoints.add(
-              DataPoint<double>(
-                value: double.parse(element["totalconfirmed"]),
-                xAxis: hash,
+              PandemicData(
+                n: int.parse(element["totalconfirmed"]),
+                dateHash: hash,
               ),
             );
           });
@@ -78,41 +77,9 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
                 child: Container(
                   height: MediaQuery.of(context).size.height * 0.35,
                   width: MediaQuery.of(context).size.width * 0.9,
-                  child: BezierChart(
-                    selectedValue: xAxisCustomValuesHash.last,
-                    bezierChartScale: BezierChartScale.CUSTOM,
-                    xAxisCustomValues: xAxisCustomValuesHash,
-                    bubbleLabelValueBuilder: (value) {
-                      int month = (value / 32).floor();
-                      int day = (value % 32).toInt();
-                      return "$day/${month + 1}\n";
-                    },
-                    footerValueBuilder: (value) {
-                      return "";
-                    },
-                    series: [
-                      BezierLine(
-                        lineColor: Colors.deepPurple,
-                        lineStrokeWidth: 2,
-                        dataPointStrokeColor: Colors.indigo,
-                        dataPointFillColor: Colors.indigo,
-                        data: dataPoints,
-                      ),
-                    ],
-                    config: BezierChartConfig(
-                      contentWidth: 1000,
-                      startYAxisFromNonZeroValue: true,
-                      stepsYAxis: 100,
-                      showVerticalIndicator: true,
-                      physics: BouncingScrollPhysics(),
-                      verticalIndicatorStrokeWidth: 1.0,
-                      verticalIndicatorColor: Colors.black38,
-                      xLinesColor: Colors.black,
-                      pinchZoom: true,
-                      footerHeight: 60.0,
-                      showDataPoints: false,
-                      xAxisTextStyle: TextStyle(color: Colors.black),
-                    ),
+                  child: charts.LineChart(
+                    getConfirmedCasesData(dataPoints),
+                    animate: true,
                   ),
                 ),
               ),

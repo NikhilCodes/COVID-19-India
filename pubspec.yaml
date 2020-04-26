@@ -21,6 +21,7 @@ dependencies:
   flare_loading:
   cached_network_image:
   bezier_chart:
+  charts_flutter:
   http:
   flutter:
     sdk: flutter
