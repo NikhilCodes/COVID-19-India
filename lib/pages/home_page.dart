@@ -184,17 +184,17 @@ class _MyHomePageState extends State<MyHomePage> {
                                           <CircularSegmentEntry>[
                                             CircularSegmentEntry(
                                               totalActiveCases.toDouble(),
-                                              Colors.blueAccent[400],
+                                              Colors.blueAccent[200],
                                               rankKey: 'Confirmed',
                                             ),
                                             CircularSegmentEntry(
                                               totalRecoveredCases.toDouble(),
-                                              Colors.cyanAccent[400],
+                                              Colors.indigo,
                                               rankKey: 'Recovered',
                                             ),
                                             CircularSegmentEntry(
                                               totalDeceasedCases.toDouble(),
-                                              Colors.indigo,
+                                              Colors.cyanAccent[400],
                                               rankKey: 'Deaths',
                                             ),
                                           ],

@@ -1,8 +1,7 @@
 import 'package:covid19tracker/helper_functions.dart';
 import 'package:covid19tracker/special_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:bezier_chart/bezier_chart.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class TotalGrowthTrends extends StatefulWidget {
   @override
@@ -14,6 +13,8 @@ class TotalGrowthTrends extends StatefulWidget {
 class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
   @override
   Widget build(BuildContext context) {
+    String pointerValue = "";
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(235, 240, 255, 1),
@@ -57,30 +58,135 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
             return Center(child: CircularProgressIndicator());
           }
 
-          int hash;
-          List<PandemicData> dataPoints = [];
+          String hash;
+          List<PandemicData> dataPointsConfirmed = List(),
+              dataPointsRecovered = List(),
+              dataPointsDeceased = List(),
+              dataPointsDailyConfirmed = List(),
+              dataPointsDailyRecovered = List(),
+              dataPointsDailyDeceased = List();
 
           snapshot.data["cases_time_series"].forEach((element) {
-            hash = dateHash(element["date"]);
-            dataPoints.add(
-              PandemicData(
-                n: int.parse(element["totalconfirmed"]),
-                dateHash: hash,
-              ),
-            );
+            hash = element["date"].substring(0, 6);
+            dataPointsConfirmed.add(PandemicData(
+                n: int.parse(element["totalconfirmed"]), date: hash));
+            dataPointsRecovered.add(PandemicData(
+                n: int.parse(element["totalrecovered"]), date: hash));
+            dataPointsDeceased.add(PandemicData(
+                n: int.parse(element["totaldeceased"]), date: hash));
+
+            dataPointsDailyConfirmed.add(PandemicData(
+                n: int.parse(element["dailyconfirmed"]), date: hash));
+            dataPointsDailyRecovered.add(PandemicData(
+                n: int.parse(element["dailyrecovered"]), date: hash));
+            dataPointsDailyDeceased.add(PandemicData(
+                n: int.parse(element["dailydeceased"]), date: hash));
           });
 
           return ListView(
             padding: EdgeInsets.only(left: 16, right: 16, top: 10),
             children: <Widget>[
               RoundedTile(
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.35,
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: charts.LineChart(
-                    getConfirmedCasesData(dataPoints),
-                    animate: true,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.45,
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      child: SfCartesianChart(
+                        primaryXAxis: CategoryAxis(),
+                        zoomPanBehavior: ZoomPanBehavior(
+                          enableDoubleTapZooming: true,
+                          enablePanning: true,
+                          zoomMode: ZoomMode.x,
+                          enableMouseWheelZooming: true,
+                          enablePinching: true,
+                        ),
+                        title: ChartTitle(text: "Total Cases"),
+                        legend: Legend(isVisible: true, position: LegendPosition.bottom),
+                        tooltipBehavior: TooltipBehavior(enable: true),
+                        series: <LineSeries<PandemicData, String>>[
+                          LineSeries<PandemicData, String>(
+                            dataSource: dataPointsConfirmed,
+                            xValueMapper: (PandemicData data, _) => data.date,
+                            yValueMapper: (PandemicData data, _) => data.n,
+                            color: Colors.blue,
+                            legendItemText: "Confirmed",
+                            enableTooltip: true,
+                            legendIconType: LegendIconType.triangle,
+                          ),
+                          LineSeries<PandemicData, String>(
+                            dataSource: dataPointsRecovered,
+                            xValueMapper: (PandemicData data, _) => data.date,
+                            yValueMapper: (PandemicData data, _) => data.n,
+                            color: Colors.green,
+                            legendItemText: "Recovered",
+                            legendIconType: LegendIconType.triangle,
+                          ),
+                          LineSeries<PandemicData, String>(
+                            dataSource: dataPointsDeceased,
+                            xValueMapper: (PandemicData data, _) => data.date,
+                            yValueMapper: (PandemicData data, _) => data.n,
+                            color: Colors.red,
+                            legendItemText: "Deceased",
+                            legendIconType: LegendIconType.triangle,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 25),
+              RoundedTile(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.45,
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      child: SfCartesianChart(
+                        primaryXAxis: CategoryAxis(),
+                        zoomPanBehavior: ZoomPanBehavior(
+                          enableDoubleTapZooming: true,
+                          enablePanning: true,
+                          zoomMode: ZoomMode.x,
+                          enableMouseWheelZooming: true,
+                          enablePinching: true,
+                        ),
+                        title: ChartTitle(text: "Daily Cases"),
+                        legend: Legend(isVisible: true, position: LegendPosition.bottom),
+                        tooltipBehavior: TooltipBehavior(enable: true),
+                        series: <LineSeries<PandemicData, String>>[
+                          LineSeries<PandemicData, String>(
+                            dataSource: dataPointsDailyConfirmed,
+                            xValueMapper: (PandemicData data, _) => data.date,
+                            yValueMapper: (PandemicData data, _) => data.n,
+                            color: Colors.blue,
+                            legendItemText: "Confirmed",
+                            enableTooltip: true,
+                            legendIconType: LegendIconType.triangle,
+                          ),
+                          LineSeries<PandemicData, String>(
+                            dataSource: dataPointsDailyRecovered,
+                            xValueMapper: (PandemicData data, _) => data.date,
+                            yValueMapper: (PandemicData data, _) => data.n,
+                            color: Colors.green,
+                            legendItemText: "Recovered",
+                            legendIconType: LegendIconType.triangle,
+                          ),
+                          LineSeries<PandemicData, String>(
+                            dataSource: dataPointsDailyDeceased,
+                            xValueMapper: (PandemicData data, _) => data.date,
+                            yValueMapper: (PandemicData data, _) => data.n,
+                            color: Colors.red,
+                            legendItemText: "Deceased",
+                            legendIconType: LegendIconType.triangle,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

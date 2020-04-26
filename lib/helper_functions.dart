@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:charts_flutter/flutter.dart' as charts;
 import 'dart:convert';
 
 final months = [
@@ -29,35 +28,18 @@ Future getFutureData() async {
   }
 }
 
-int dateHash(String date) {
-  int n = 0;
-
+DateTime getDateTimeObj(String date) {
   var segments = date.split(" ");
   int month = months.indexOf(segments[1]), day = int.parse(segments[0]);
 
-  n = (32 * month) + day;
-  return n;
+  var dateTime = DateTime(2019, month+1, day);
+
+  return dateTime;
 }
 
 class PandemicData {
   final int n;
-  final int dateHash;
+  final String date;
 
-  PandemicData({this.n, this.dateHash});
-}
-
-getConfirmedCasesData(data) {
-  List<charts.Series<PandemicData, int>> series = [
-    charts.Series(
-      labelAccessorFn: (PandemicData row, _) => '${row.n}',
-      id: "No. of Patient",
-      data: data,
-      domainFn: (PandemicData series, _) => series.dateHash,
-      measureFn: (PandemicData series, _) => series.n,
-      colorFn: (PandemicData series, _) =>
-          charts.MaterialPalette.blue.shadeDefault,
-    )
-  ];
-
-  return series;
+  PandemicData({this.n, this.date});
 }

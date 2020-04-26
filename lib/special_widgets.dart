@@ -36,3 +36,28 @@ class _RoundedTileState extends State<RoundedTile> {
     );
   }
 }
+
+class TotalDataSelectionInfo extends StatefulWidget {
+  TotalDataSelectionInfo({Key key, this.value1}) : super(key: key);
+
+  final String value1;
+
+  @override
+  State<StatefulWidget> createState() {
+    return _TotalDataSelectionInfoState();
+  }
+}
+
+class _TotalDataSelectionInfoState extends State<TotalDataSelectionInfo> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Row(
+        children: <Widget>[
+          Text("Confirmed\n${widget.value1}"),
+        ],
+      ),
+    );
+  }
+
+}
