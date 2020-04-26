@@ -1,4 +1,5 @@
 import 'package:bezier_chart/bezier_chart.dart';
+import 'package:covid19tracker/helper_functions.dart';
 import 'package:covid19tracker/special_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -29,11 +30,10 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
             Text(
               "Cases",
               style: TextStyle(
-                fontFamily: "Rubik",
                 color: Colors.deepPurple,
                 letterSpacing: 2,
-                fontWeight: FontWeight.w800,
-                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                fontSize: 30,
               ),
             ),
             SizedBox(width: 5),
@@ -41,56 +41,84 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
               "Trends",
               style: TextStyle(
                 color: Colors.indigo,
-                fontWeight: FontWeight.w600,
-                fontSize: 18,
+                fontWeight: FontWeight.w400,
+                fontSize: 22,
               ),
             ),
           ],
         ),
       ),
       backgroundColor: Color.fromRGBO(235, 240, 255, 1),
-      body: ListView(
-        padding: EdgeInsets.only(left: 16, right: 16, top: 10),
-        children: <Widget>[
-          RoundedTile(
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.35,
-              width: MediaQuery.of(context).size.width * 0.9,
-              child: BezierChart(
-                bezierChartScale: BezierChartScale.CUSTOM,
-                xAxisCustomValues: const [0, 5, 10, 15, 20, 25, 30, 35],
-                series: const [
-                  BezierLine(
-                    lineColor: Colors.blue,
-                    lineStrokeWidth: 2,
-                    dataPointStrokeColor: Colors.indigo,
-                    dataPointFillColor: Colors.indigo,
-                    data: const [
-                      DataPoint<double>(value: 10, xAxis: 0),
-                      DataPoint<double>(value: 130, xAxis: 5),
-                      DataPoint<double>(value: 50, xAxis: 10),
-                      DataPoint<double>(value: 150, xAxis: 15),
-                      DataPoint<double>(value: 75, xAxis: 20),
-                      DataPoint<double>(value: 0, xAxis: 25),
-                      DataPoint<double>(value: 5, xAxis: 30),
-                      DataPoint<double>(value: 45, xAxis: 35),
+      body: FutureBuilder(
+        future: getFutureData(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          double hash;
+          List<double> xAxisCustomValuesHash = [];
+          List<DataPoint<double>> dataPoints = [];
+
+          snapshot.data["cases_time_series"].forEach((element) {
+            hash = dateHash(element["date"]).toDouble();
+            xAxisCustomValuesHash.add(hash);
+            dataPoints.add(
+              DataPoint<double>(
+                value: double.parse(element["totalconfirmed"]),
+                xAxis: hash,
+              ),
+            );
+          });
+
+          return ListView(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 10),
+            children: <Widget>[
+              RoundedTile(
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 0.35,
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: BezierChart(
+                    selectedValue: xAxisCustomValuesHash.last,
+                    bezierChartScale: BezierChartScale.CUSTOM,
+                    xAxisCustomValues: xAxisCustomValuesHash,
+                    bubbleLabelValueBuilder: (value) {
+                      int month = (value / 32).floor();
+                      int day = (value % 32).toInt();
+                      return "$day/${month + 1}\n";
+                    },
+                    footerValueBuilder: (value) {
+                      return "";
+                    },
+                    series: [
+                      BezierLine(
+                        lineColor: Colors.deepPurple,
+                        lineStrokeWidth: 2,
+                        dataPointStrokeColor: Colors.indigo,
+                        dataPointFillColor: Colors.indigo,
+                        data: dataPoints,
+                      ),
                     ],
+                    config: BezierChartConfig(
+                      contentWidth: 1000,
+                      startYAxisFromNonZeroValue: true,
+                      stepsYAxis: 100,
+                      showVerticalIndicator: true,
+                      physics: BouncingScrollPhysics(),
+                      verticalIndicatorStrokeWidth: 1.0,
+                      verticalIndicatorColor: Colors.black38,
+                      xLinesColor: Colors.black,
+                      pinchZoom: true,
+                      footerHeight: 60.0,
+                      showDataPoints: false,
+                      xAxisTextStyle: TextStyle(color: Colors.black),
+                    ),
                   ),
-                ],
-                config: BezierChartConfig(
-                  verticalIndicatorStrokeWidth: 2.0,
-                  verticalIndicatorColor: Colors.black38,
-                  showVerticalIndicator: true,
-                  verticalIndicatorFixedPosition: true,
-                  xLinesColor: Colors.black,
-                  pinchZoom: true,
-                  showDataPoints: true,
-                  footerHeight: 30.0,
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
