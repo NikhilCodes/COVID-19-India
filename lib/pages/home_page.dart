@@ -7,6 +7,7 @@ import 'package:covid19tracker/special_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -18,13 +19,18 @@ class _MyHomePageState extends State<MyHomePage> {
       totalRecoveredCases,
       totalDeceasedCases,
       totalCases,
+      deltaConfirmedCases,
       deltaRecoveredCases,
       deltaDeceasedCases;
 
   List<Widget> top7StatesActiveTextWidgets;
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: true);
+  var futureData;
 
   @override
   Widget build(BuildContext context) {
+    //futureData = await getFutureData();
     return Scaffold(
       backgroundColor: Color.fromRGBO(235, 240, 255, 1),
       appBar: AppBar(
@@ -55,62 +61,93 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Color.fromRGBO(235, 240, 255, 1),
         elevation: 0,
       ),
-      body: Padding(
-        padding: EdgeInsets.only(left: 16, right: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              "Dashboard",
-              style: TextStyle(fontSize: 36, fontWeight: FontWeight.w700),
-            ),
-            SizedBox(height: 5),
-            Row(
-              children: <Widget>[
-                Container(
-                  height: 10,
-                  width: 58,
-                  decoration: BoxDecoration(
-                      color: Colors.indigo,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(5),
-                          bottomLeft: Radius.circular(5))),
-                ),
-                Container(
-                  height: 10,
-                  width: 58,
-                  color: Colors.blue,
-                ),
-                Container(
-                  height: 10,
-                  width: 58,
-                  decoration: BoxDecoration(
+      body: SmartRefresher(
+        controller: _refreshController,
+        header: BezierCircleHeader(
+          circleRadius: 20,
+          bezierColor: Colors.deepPurple,
+        ),
+        enablePullDown: true,
+        onRefresh: () async {
+          var data = await getFutureData();
+          setState(() {
+            futureData = data;
+          });
+          _refreshController.refreshCompleted();
+          print("New Data Loaded!");
+        },
+        child: Padding(
+          padding: EdgeInsets.only(left: 16, right: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                "Dashboard",
+                style: TextStyle(fontSize: 36, fontWeight: FontWeight.w700),
+              ),
+              SizedBox(height: 5),
+              Row(
+                children: <Widget>[
+                  Container(
+                    height: 10,
+                    width: 58,
+                    decoration: BoxDecoration(
+                        color: Colors.indigo,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(5),
+                            bottomLeft: Radius.circular(5))),
+                  ),
+                  Container(
+                    height: 10,
+                    width: 58,
+                    color: Colors.blue[400],
+                  ),
+                  Container(
+                    height: 10,
+                    width: 58,
+                    decoration: BoxDecoration(
                       color: Colors.cyanAccent.shade400,
                       borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(5),
-                          bottomRight: Radius.circular(5))),
-                )
-              ],
-            ),
-            SizedBox(height: 25),
-            FutureBuilder(
-              future: getFutureData(),
-              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                if (snapshot.hasData) {
+                        topRight: Radius.circular(5),
+                        bottomRight: Radius.circular(5),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(height: 25),
+              Builder(
+                builder: (BuildContext context) {
+                  if (futureData == null) {
+                    return Expanded(
+                      child: Center(
+                        child: Text(
+                          "Just a moment...",
+                          style: TextStyle(
+                            fontFamily: "Rubik",
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+
                   totalActiveCases =
-                      int.parse(snapshot.data['statewise'][0]['active']);
+                      int.parse(futureData['statewise'][0]['active']);
                   totalRecoveredCases =
-                      int.parse(snapshot.data['statewise'][0]['recovered']);
+                      int.parse(futureData['statewise'][0]['recovered']);
                   totalDeceasedCases =
-                      int.parse(snapshot.data['statewise'][0]['deaths']);
+                      int.parse(futureData['statewise'][0]['deaths']);
                   totalCases = totalActiveCases +
                       totalDeceasedCases +
                       totalRecoveredCases;
 
-                  deltaRecoveredCases = int.parse(
-                      snapshot.data['statewise'][0]["deltarecovered"]);
+                  deltaConfirmedCases =
+                      int.parse(futureData['statewise'][0]["deltaconfirmed"]);
+                  deltaRecoveredCases =
+                      int.parse(futureData['statewise'][0]["deltarecovered"]);
                   deltaDeceasedCases =
-                      int.parse(snapshot.data['statewise'][0]["deltadeaths"]);
+                      int.parse(futureData['statewise'][0]["deltadeaths"]);
 
                   top7StatesActiveTextWidgets = [
                     Row(
@@ -128,15 +165,16 @@ class _MyHomePageState extends State<MyHomePage> {
                         Text(
                           "State",
                           style: TextStyle(
-                              fontFamily: "Rubik",
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              color: Colors.indigo),
+                            fontFamily: "Rubik",
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: Colors.indigo,
+                          ),
                         )
                       ],
                     )
                   ];
-                  snapshot.data["statewise"].sublist(1, 8).forEach((element) {
+                  futureData["statewise"].sublist(1, 8).forEach((element) {
                     top7StatesActiveTextWidgets.add(
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -273,13 +311,33 @@ class _MyHomePageState extends State<MyHomePage> {
                                           ),
                                         ],
                                       ),
-                                      Text(
-                                        totalActiveCases.toString(),
-                                        style: TextStyle(
-                                          color: Colors.grey.shade700,
-                                          fontFamily: "monospace",
-                                          fontSize: 16,
-                                        ),
+                                      Row(
+                                        children: <Widget>[
+                                          Text(
+                                            "$deltaConfirmedCases",
+                                            style: TextStyle(
+                                              color: Colors.blueGrey,
+                                              fontFamily: "Rubik",
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Icon(
+                                            Icons.arrow_upward,
+                                            size: 17,
+                                            color: Colors.blueGrey,
+                                          ),
+                                          Text(
+                                            totalActiveCases
+                                                .toString()
+                                                .padLeft(7),
+                                            style: TextStyle(
+                                              color: Colors.grey.shade700,
+                                              fontFamily: "monospace",
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -294,7 +352,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         children: <Widget>[
                                           Container(
                                             decoration: BoxDecoration(
-                                              color: Colors.cyanAccent[400],
+                                              color: Colors.indigo,
                                               borderRadius:
                                                   BorderRadius.circular(9),
                                             ),
@@ -351,7 +409,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         children: <Widget>[
                                           Container(
                                             decoration: BoxDecoration(
-                                              color: Colors.indigo,
+                                              color: Colors.cyanAccent[400],
                                               borderRadius:
                                                   BorderRadius.circular(9),
                                             ),
@@ -456,15 +514,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       ],
                     ),
                   );
-                } else if (snapshot.hasData) {
-                  return Center(child: Text("${snapshot.error}"));
-                }
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              },
-            ),
-          ],
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

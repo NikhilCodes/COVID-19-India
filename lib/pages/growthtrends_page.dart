@@ -84,6 +84,7 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
           });
 
           return ListView(
+            physics: BouncingScrollPhysics(),
             padding: EdgeInsets.only(left: 16, right: 16, top: 10),
             children: <Widget>[
               RoundedTile(
@@ -189,6 +190,7 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
                   ],
                 ),
               ),
+              SizedBox(height: 30),
             ],
           );
         },
