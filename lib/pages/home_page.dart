@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -8,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -26,11 +29,12 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> top7StatesActiveTextWidgets;
   RefreshController _refreshController =
       RefreshController(initialRefresh: true);
-  var futureData;
+  Map futureData;
+  String emptyScreenText = "Just a moment...";
+  String failedSubText = "";
 
   @override
   Widget build(BuildContext context) {
-    //futureData = await getFutureData();
     return Scaffold(
       backgroundColor: Color.fromRGBO(235, 240, 255, 1),
       appBar: AppBar(
@@ -63,18 +67,74 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: SmartRefresher(
         controller: _refreshController,
-        header: BezierCircleHeader(
-          circleRadius: 20,
-          bezierColor: Colors.deepPurple,
+        header: TwoLevelHeader(
+          height: 60,
+          decoration: BoxDecoration(
+            color: Colors.deepPurple,
+          ),
+          textStyle: TextStyle(
+            fontFamily: "Rubik",
+            fontSize: 15,
+            color: Colors.white,
+          ),
+          idleIcon: Icon(
+            Icons.arrow_downward,
+            color: Colors.white,
+          ),
+          releaseIcon: Icon(
+            Icons.refresh,
+            color: Colors.white,
+          ),
+          refreshingIcon: SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          ),
+          completeIcon: Icon(
+            Icons.done,
+            color: Colors.white,
+          ),
+          failedText: "No Internet Access\n${failedSubText}",
+          failedIcon: Icon(
+            Icons.error,
+            color: Colors.white,
+          ),
+          completeDuration: Duration(seconds: 5),
         ),
         enablePullDown: true,
+        primary: true,
         onRefresh: () async {
-          var data = await getFutureData();
+          var data;
+          var now = DateTime.now();
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          try {
+            data = await getFutureData();
+            prefs.setString("last-loaded-data", json.encode(data));
+            prefs.setString(
+                "last-loaded-date", "${now.day}/${now.month}/${now.year}");
+            _refreshController.refreshCompleted();
+          } on SocketException {
+            if (prefs.containsKey("last-loaded-date")) {
+              setState(() {
+                failedSubText =
+                    "Showing results from ${prefs.getString("last-loaded-date")}";
+              });
+            }
+            _refreshController.refreshFailed();
+            if (prefs.containsKey("last-loaded-data")) {
+              data = json.decode(prefs.getString("last-loaded-data"));
+              print("Loading Old Data...");
+            } else {
+              setState(() {
+                emptyScreenText = "No Internet!";
+              });
+            }
+          }
           setState(() {
             futureData = data;
           });
-          _refreshController.refreshCompleted();
-          print("New Data Loaded!");
         },
         child: Padding(
           padding: EdgeInsets.only(left: 16, right: 16),
@@ -122,7 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     return Expanded(
                       child: Center(
                         child: Text(
-                          "Just a moment...",
+                          emptyScreenText,
                           style: TextStyle(
                             fontFamily: "Rubik",
                             fontSize: 20,
