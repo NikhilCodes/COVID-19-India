@@ -102,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Icons.error,
             color: Colors.white,
           ),
-          completeDuration: Duration(seconds: 5),
+          completeDuration: Duration(seconds: 2),
         ),
         enablePullDown: true,
         primary: true,
@@ -202,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       int.parse(futureData['statewise'][0]['deaths']);
                   totalActiveCases =
                       int.parse(futureData['statewise'][0]['active']);
-                  
+
                   deltaConfirmedCases =
                       int.parse(futureData['statewise'][0]["deltaconfirmed"]);
                   deltaRecoveredCases =
