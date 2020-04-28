@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class TotalGrowthTrends extends StatefulWidget {
+  TotalGrowthTrends({this.data});
+
+  final Map data;
+
   @override
   State<StatefulWidget> createState() {
     return _TotalGrowthTrendsState();
@@ -13,8 +17,6 @@ class TotalGrowthTrends extends StatefulWidget {
 class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
   @override
   Widget build(BuildContext context) {
-    String pointerValue = "";
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(235, 240, 255, 1),
@@ -51,13 +53,8 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
         ),
       ),
       backgroundColor: Color.fromRGBO(235, 240, 255, 1),
-      body: FutureBuilder(
-        future: getFutureData(),
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-
+      body: Builder(
+        builder: (BuildContext context) {
           String hash;
           List<PandemicData> dataPointsConfirmed = List(),
               dataPointsRecovered = List(),
@@ -66,7 +63,7 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
               dataPointsDailyRecovered = List(),
               dataPointsDailyDeceased = List();
 
-          snapshot.data["cases_time_series"].forEach((element) {
+          widget.data["cases_time_series"].forEach((element) {
             hash = element["date"].substring(0, 6);
             dataPointsConfirmed.add(PandemicData(
                 n: int.parse(element["totalconfirmed"]), date: hash));

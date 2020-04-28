@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:covid19tracker/helper_functions.dart';
 import 'package:covid19tracker/pages/growthtrends_page.dart';
+import 'package:covid19tracker/pages/states_details_page.dart';
 import 'package:covid19tracker/special_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,10 +19,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int totalActiveCases,
+  int totalConfirmedCases,
       totalRecoveredCases,
       totalDeceasedCases,
-      totalCases,
+      totalActiveCases,
       deltaConfirmedCases,
       deltaRecoveredCases,
       deltaDeceasedCases;
@@ -96,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Icons.done,
             color: Colors.white,
           ),
-          failedText: "No Internet Access\n${failedSubText}",
+          failedText: "No Internet Access$failedSubText",
           failedIcon: Icon(
             Icons.error,
             color: Colors.white,
@@ -119,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
             if (prefs.containsKey("last-loaded-date")) {
               setState(() {
                 failedSubText =
-                    "Showing results from ${prefs.getString("last-loaded-date")}";
+                    "\nShowing results from ${prefs.getString("last-loaded-date")}";
               });
             }
             _refreshController.refreshFailed();
@@ -186,22 +187,22 @@ class _MyHomePageState extends State<MyHomePage> {
                           style: TextStyle(
                             fontFamily: "Rubik",
                             fontSize: 20,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     );
                   }
 
-                  totalActiveCases =
-                      int.parse(futureData['statewise'][0]['active']);
+                  totalConfirmedCases =
+                      int.parse(futureData['statewise'][0]['confirmed']);
                   totalRecoveredCases =
                       int.parse(futureData['statewise'][0]['recovered']);
                   totalDeceasedCases =
                       int.parse(futureData['statewise'][0]['deaths']);
-                  totalCases = totalActiveCases +
-                      totalDeceasedCases +
-                      totalRecoveredCases;
-
+                  totalActiveCases =
+                      int.parse(futureData['statewise'][0]['active']);
+                  
                   deltaConfirmedCases =
                       int.parse(futureData['statewise'][0]["deltaconfirmed"]);
                   deltaRecoveredCases =
@@ -281,7 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         CircularStackEntry(
                                           <CircularSegmentEntry>[
                                             CircularSegmentEntry(
-                                              totalActiveCases.toDouble(),
+                                              totalConfirmedCases.toDouble(),
                                               Colors.blueAccent[200],
                                               rankKey: 'Confirmed',
                                             ),
@@ -322,7 +323,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               MainAxisAlignment.center,
                                           children: <Widget>[
                                             Text(
-                                              totalCases.toString(),
+                                              totalActiveCases.toString(),
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 fontFamily: "Rubik",
@@ -330,7 +331,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               ),
                                             ),
                                             Text(
-                                              "Total Cases",
+                                              "Active",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w400,
                                                 fontSize: 16,
@@ -362,7 +363,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           ),
                                           SizedBox(width: 5),
                                           Text(
-                                            "Active",
+                                            "Confirmed",
                                             style: TextStyle(
                                               color: Colors.grey.shade700,
                                               fontFamily: "Rubik",
@@ -388,7 +389,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             color: Colors.blueGrey,
                                           ),
                                           Text(
-                                            totalActiveCases
+                                            totalConfirmedCases
                                                 .toString()
                                                 .padLeft(7),
                                             style: TextStyle(
@@ -525,7 +526,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             print("Tap1");
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => TotalGrowthTrends(),
+                                builder: (context) =>
+                                    TotalGrowthTrends(data: futureData),
                               ),
                             );
                           },
@@ -567,7 +569,14 @@ class _MyHomePageState extends State<MyHomePage> {
                             ],
                           ),
                           oneTap: () {
-                            print("Tap");
+                            print("Tap2");
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return StateDetailsPage(data: futureData);
+                                },
+                              ),
+                            );
                           },
                         ),
                         SizedBox(height: 30),
