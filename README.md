@@ -6,5 +6,5 @@ A Flutter application reaping the benefits of Plotting Libraries to Visualize CO
  - Pull `Dashboard` heading to Refresh.
 
 ## Demo
-![Demo](/demo/COVID19-IN app demo.gif)
+![Demo](/demo/COVID19-IN-app-demo.gif)
 
