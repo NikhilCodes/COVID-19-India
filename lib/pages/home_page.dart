@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:covid19tracker/helper_functions.dart';
 import 'package:covid19tracker/pages/growthtrends_page.dart';
+import 'package:covid19tracker/pages/settings_page.dart';
 import 'package:covid19tracker/pages/states_details_page.dart';
 import 'package:covid19tracker/special_widgets.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +15,10 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyHomePage extends StatefulWidget {
+  MyHomePage({this.prefs});
+
+  final prefs;
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -27,6 +32,8 @@ class _MyHomePageState extends State<MyHomePage> {
       deltaRecoveredCases,
       deltaDeceasedCases;
 
+  bool enableDark;
+
   List<Widget> top7StatesActiveTextWidgets;
   RefreshController _refreshController =
       RefreshController(initialRefresh: true);
@@ -34,10 +41,29 @@ class _MyHomePageState extends State<MyHomePage> {
   String emptyScreenText = "Just a moment...";
   String failedSubText = "";
 
+  void enableDarkTheme() {
+    setState(() {
+      enableDark = true;
+    });
+  }
+
+  void disableDarkTheme() {
+    setState(() {
+      enableDark = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    enableDark = widget.prefs.getBool("enableDark");
+    if (enableDark == null) {
+      enableDark = false;
+      widget.prefs.setBool("enableDark", false);
+    }
     return Scaffold(
-      backgroundColor: Color.fromRGBO(235, 240, 255, 1),
+      backgroundColor: enableDark
+          ? Colors.white.withOpacity(0.2)
+          : Color.fromRGBO(235, 240, 255, 1),
       appBar: AppBar(
         title: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -46,7 +72,9 @@ class _MyHomePageState extends State<MyHomePage> {
               "COVID-19",
               style: TextStyle(
                 fontFamily: "Rubik",
-                color: Colors.deepPurple,
+                color: enableDark
+                    ? Colors.deepPurpleAccent.shade100
+                    : Colors.deepPurple,
                 letterSpacing: 2,
                 fontWeight: FontWeight.w800,
                 fontSize: 22,
@@ -56,14 +84,40 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               "India",
               style: TextStyle(
-                color: Colors.indigo,
+                color: enableDark ? Colors.indigo.shade100 : Colors.indigo,
                 fontWeight: FontWeight.w600,
                 fontSize: 18,
               ),
             ),
           ],
         ),
-        backgroundColor: Color.fromRGBO(235, 240, 255, 1),
+        actions: <Widget>[
+          GestureDetector(
+            child: Icon(
+              Icons.settings,
+              color: enableDark
+                  ? Colors.deepPurpleAccent.shade100
+                  : Colors.deepPurple,
+            ),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return SettingsPage(
+                      prefs: widget.prefs,
+                      parent: this,
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+          SizedBox(width: 10),
+        ],
+        backgroundColor:
+            enableDark ? Colors.transparent : Color.fromRGBO(235, 240, 255, 1),
+        brightness: enableDark ? Brightness.dark : Brightness.light,
+        bottomOpacity: 1,
         elevation: 0,
       ),
       body: SmartRefresher(
@@ -144,7 +198,12 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               Text(
                 "Dashboard",
-                style: TextStyle(fontSize: 36, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w700,
+                    color: enableDark
+                        ? Colors.white.withOpacity(0.9)
+                        : Colors.black),
               ),
               SizedBox(height: 5),
               Row(
@@ -153,10 +212,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     height: 10,
                     width: 58,
                     decoration: BoxDecoration(
-                        color: Colors.indigo,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(5),
-                            bottomLeft: Radius.circular(5))),
+                      color: Colors.indigo,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        bottomLeft: Radius.circular(5),
+                      ),
+                    ),
                   ),
                   Container(
                     height: 10,
@@ -188,6 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             fontFamily: "Rubik",
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
+                            color: enableDark ? Colors.white : Colors.black
                           ),
                         ),
                       ),
@@ -220,7 +282,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             fontFamily: "Rubik",
                             fontWeight: FontWeight.w600,
                             fontSize: 15,
-                            color: Colors.purple,
+                            color: enableDark
+                                ? Colors.deepPurpleAccent.shade100
+                                : Colors.purple,
                           ),
                         ),
                         Text(
@@ -229,7 +293,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             fontFamily: "Rubik",
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
-                            color: Colors.indigo,
+                            color: enableDark
+                                ? Colors.indigoAccent.shade100
+                                : Colors.indigo,
                           ),
                         )
                       ],
@@ -246,6 +312,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               fontFamily: "Rubik",
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
+                              color: enableDark
+                                  ? Colors.grey.shade300
+                                  : Colors.grey.shade700,
                             ),
                           ),
                           Text(
@@ -253,7 +322,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             style: TextStyle(
                               fontFamily: "Rubik",
                               fontSize: 16,
-                              color: Colors.grey[700],
+                              color: enableDark
+                                  ? Colors.grey.shade300
+                                  : Colors.grey.shade700,
                             ),
                           ),
                         ],
@@ -266,6 +337,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       physics: BouncingScrollPhysics(),
                       children: <Widget>[
                         RoundedTile(
+                          backgroundColor: enableDark
+                              ? Color.fromRGBO(20, 20, 20, 1)
+                              : Colors.white,
                           child: Column(
                             children: <Widget>[
                               Center(
@@ -308,10 +382,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(60),
-                                          color: Colors.white,
+                                          color: enableDark
+                                              ? Color.fromRGBO(40, 40, 40, 1)
+                                              : Colors.white,
                                           boxShadow: [
                                             BoxShadow(
-                                              color: Colors.grey,
+                                              color: enableDark
+                                                  ? Colors.blueGrey
+                                                  : Colors.grey,
                                               spreadRadius: 1,
                                               blurRadius: 6,
                                               offset: Offset(0, 3),
@@ -325,17 +403,21 @@ class _MyHomePageState extends State<MyHomePage> {
                                             Text(
                                               totalActiveCases.toString(),
                                               style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: "Rubik",
-                                                fontSize: 20,
-                                              ),
+                                                  fontWeight: FontWeight.w600,
+                                                  fontFamily: "Rubik",
+                                                  fontSize: 20,
+                                                  color: enableDark
+                                                      ? Colors.white
+                                                      : Colors.black),
                                             ),
                                             Text(
                                               "Active",
                                               style: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 16,
-                                              ),
+                                                  fontWeight: FontWeight.w400,
+                                                  fontSize: 16,
+                                                  color: enableDark
+                                                      ? Colors.white
+                                                      : Colors.black),
                                             )
                                           ],
                                         ),
@@ -365,7 +447,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                           Text(
                                             "Confirmed",
                                             style: TextStyle(
-                                              color: Colors.grey.shade700,
+                                              color: enableDark
+                                                  ? Colors.grey.shade300
+                                                  : Colors.grey.shade700,
                                               fontFamily: "Rubik",
                                               fontSize: 16,
                                             ),
@@ -377,7 +461,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                           Text(
                                             "$deltaConfirmedCases",
                                             style: TextStyle(
-                                              color: Colors.blueGrey,
+                                              color: enableDark
+                                                  ? Colors.blueGrey.shade200
+                                                  : Colors.blueGrey,
                                               fontFamily: "Rubik",
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
@@ -386,14 +472,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                           Icon(
                                             Icons.arrow_upward,
                                             size: 17,
-                                            color: Colors.blueGrey,
+                                            color: enableDark
+                                                ? Colors.blueGrey.shade200
+                                                : Colors.blueGrey,
                                           ),
                                           Text(
                                             totalConfirmedCases
                                                 .toString()
                                                 .padLeft(7),
                                             style: TextStyle(
-                                              color: Colors.grey.shade700,
+                                              color: enableDark
+                                                  ? Colors.grey.shade300
+                                                  : Colors.grey.shade700,
                                               fontFamily: "monospace",
                                               fontSize: 16,
                                             ),
@@ -424,7 +514,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                           Text(
                                             "Recovered",
                                             style: TextStyle(
-                                              color: Colors.grey.shade700,
+                                              color: enableDark
+                                                  ? Colors.grey.shade300
+                                                  : Colors.grey.shade700,
                                               fontFamily: "Rubik",
                                               fontSize: 16,
                                             ),
@@ -436,7 +528,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                           Text(
                                             "$deltaRecoveredCases",
                                             style: TextStyle(
-                                              color: Colors.green,
+                                              color: enableDark
+                                                  ? Colors.greenAccent
+                                                  : Colors.green,
                                               fontFamily: "Rubik",
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
@@ -445,14 +539,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                           Icon(
                                             Icons.arrow_upward,
                                             size: 17,
-                                            color: Colors.green,
+                                            color: enableDark
+                                                ? Colors.greenAccent
+                                                : Colors.green,
                                           ),
                                           Text(
                                             totalRecoveredCases
                                                 .toString()
                                                 .padLeft(7),
                                             style: TextStyle(
-                                              color: Colors.grey.shade700,
+                                              color: enableDark
+                                                  ? Colors.grey.shade300
+                                                  : Colors.grey.shade700,
                                               fontFamily: "monospace",
                                               fontSize: 16,
                                             ),
@@ -481,7 +579,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                           Text(
                                             "Deceased",
                                             style: TextStyle(
-                                              color: Colors.grey.shade700,
+                                              color: enableDark
+                                                  ? Colors.grey.shade300
+                                                  : Colors.grey.shade700,
                                               fontFamily: "Rubik",
                                               fontSize: 16,
                                             ),
@@ -493,7 +593,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                           Text(
                                             "$deltaDeceasedCases",
                                             style: TextStyle(
-                                              color: Colors.redAccent,
+                                              color: enableDark
+                                                  ? Colors.redAccent.shade100
+                                                  : Colors.redAccent,
                                               fontFamily: "Rubik",
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
@@ -502,14 +604,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                           Icon(
                                             Icons.arrow_upward,
                                             size: 17,
-                                            color: Colors.redAccent,
+                                            color: enableDark
+                                                ? Colors.redAccent.shade100
+                                                : Colors.redAccent,
                                           ),
                                           Text(
                                             totalDeceasedCases
                                                 .toString()
                                                 .padLeft(7),
                                             style: TextStyle(
-                                              color: Colors.grey.shade700,
+                                              color: enableDark
+                                                  ? Colors.grey.shade300
+                                                  : Colors.grey.shade700,
                                               fontFamily: "monospace",
                                               fontSize: 16,
                                             ),
@@ -526,14 +632,19 @@ class _MyHomePageState extends State<MyHomePage> {
                             print("Tap1");
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    TotalGrowthTrends(data: futureData),
+                                builder: (context) => TotalGrowthTrends(
+                                  data: futureData,
+                                  enableDark: enableDark,
+                                ),
                               ),
                             );
                           },
                         ),
                         SizedBox(height: 30),
                         RoundedTile(
+                          backgroundColor: enableDark
+                              ? Color.fromRGBO(20, 20, 20, 1)
+                              : Colors.white,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
@@ -542,7 +653,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                 style: TextStyle(
                                   fontSize: 25,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.grey.shade700,
+                                  color: enableDark
+                                      ? Colors.grey.shade300
+                                      : Colors.grey.shade700,
                                 ),
                               ),
                               SizedBox(
@@ -573,7 +686,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) {
-                                  return StateDetailsPage(data: futureData);
+                                  return StateDetailsPage(
+                                    data: futureData,
+                                    enableDark: enableDark,
+                                  );
                                 },
                               ),
                             );

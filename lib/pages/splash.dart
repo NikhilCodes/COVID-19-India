@@ -4,6 +4,10 @@ import 'package:flare_loading/flare_loading.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatelessWidget {
+  SplashScreen({this.prefs});
+
+  final prefs;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,7 +19,7 @@ class SplashScreen extends StatelessWidget {
         onSuccess: (data) async {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => MyHomePage(),
+              builder: (context) => MyHomePage(prefs: prefs),
             ),
           );
         },

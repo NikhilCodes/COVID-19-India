@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class TotalGrowthTrends extends StatefulWidget {
-  TotalGrowthTrends({this.data});
+  TotalGrowthTrends({this.data, this.enableDark});
 
   final Map data;
+  final bool enableDark;
 
   @override
   State<StatefulWidget> createState() {
@@ -17,14 +18,16 @@ class TotalGrowthTrends extends StatefulWidget {
 class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
   @override
   Widget build(BuildContext context) {
+    bool enableDark = widget.enableDark;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(235, 240, 255, 1),
+        backgroundColor:
+            enableDark ? Colors.transparent : Color.fromRGBO(235, 240, 255, 1),
         elevation: 0,
         leading: GestureDetector(
           child: Icon(
             Icons.arrow_back_ios,
-            color: Colors.indigo,
+            color: enableDark ? Colors.white : Colors.indigo,
           ),
           onTap: () => Navigator.of(context).pop(),
         ),
@@ -34,7 +37,9 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
             Text(
               "Cases",
               style: TextStyle(
-                color: Colors.deepPurple,
+                color: enableDark
+                    ? Colors.deepPurpleAccent.shade100
+                    : Colors.deepPurple,
                 letterSpacing: 2,
                 fontWeight: FontWeight.w900,
                 fontSize: 30,
@@ -44,7 +49,7 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
             Text(
               "Trends",
               style: TextStyle(
-                color: Colors.indigo,
+                color: enableDark ? Colors.indigoAccent : Colors.indigo,
                 fontWeight: FontWeight.w400,
                 fontSize: 22,
               ),
@@ -52,7 +57,9 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
           ],
         ),
       ),
-      backgroundColor: Color.fromRGBO(235, 240, 255, 1),
+      backgroundColor: enableDark
+          ? Colors.white.withOpacity(0.2)
+          : Color.fromRGBO(235, 240, 255, 1),
       body: Builder(
         builder: (BuildContext context) {
           String hash;
@@ -85,6 +92,8 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
             padding: EdgeInsets.only(left: 16, right: 16, top: 10),
             children: <Widget>[
               RoundedTile(
+                backgroundColor:
+                    enableDark ? Color.fromRGBO(20, 20, 20, 1) : Colors.white,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -101,7 +110,8 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
                           enablePinching: true,
                         ),
                         title: ChartTitle(text: "Total Cases"),
-                        legend: Legend(isVisible: true, position: LegendPosition.bottom),
+                        legend: Legend(
+                            isVisible: true, position: LegendPosition.bottom),
                         tooltipBehavior: TooltipBehavior(enable: true),
                         series: <LineSeries<PandemicData, String>>[
                           LineSeries<PandemicData, String>(
@@ -137,6 +147,8 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
               ),
               SizedBox(height: 25),
               RoundedTile(
+                backgroundColor:
+                    enableDark ? Color.fromRGBO(20, 20, 20, 1) : Colors.white,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -153,7 +165,8 @@ class _TotalGrowthTrendsState extends State<TotalGrowthTrends> {
                           enablePinching: true,
                         ),
                         title: ChartTitle(text: "Daily Cases"),
-                        legend: Legend(isVisible: true, position: LegendPosition.bottom),
+                        legend: Legend(
+                            isVisible: true, position: LegendPosition.bottom),
                         tooltipBehavior: TooltipBehavior(enable: true),
                         series: <LineSeries<PandemicData, String>>[
                           LineSeries<PandemicData, String>(

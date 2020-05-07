@@ -2,9 +2,10 @@ import 'package:covid19tracker/special_widgets.dart';
 import 'package:flutter/material.dart';
 
 class StateDetailsPage extends StatefulWidget {
-  StateDetailsPage({this.data});
+  StateDetailsPage({this.data, this.enableDark});
 
   final Map data;
+  final bool enableDark;
 
   @override
   State<StatefulWidget> createState() {
@@ -18,15 +19,17 @@ class StateDetailsPageState extends State<StateDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    var enableDark = widget.enableDark;
     var data = widget.data["statewise"].sublist(1);
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(235, 240, 255, 1),
+        backgroundColor:
+            enableDark ? Colors.transparent : Color.fromRGBO(235, 240, 255, 1),
         elevation: 0,
         leading: GestureDetector(
           child: Icon(
             Icons.arrow_back_ios,
-            color: Colors.indigo,
+            color: enableDark ? Colors.white : Colors.indigo,
           ),
           onTap: () => Navigator.of(context).pop(),
         ),
@@ -36,7 +39,9 @@ class StateDetailsPageState extends State<StateDetailsPage> {
             Text(
               "State",
               style: TextStyle(
-                color: Colors.deepPurple,
+                color: enableDark
+                    ? Colors.deepPurpleAccent.shade100
+                    : Colors.deepPurple,
                 letterSpacing: 2,
                 fontWeight: FontWeight.w900,
                 fontSize: 30,
@@ -46,7 +51,7 @@ class StateDetailsPageState extends State<StateDetailsPage> {
             Text(
               "Details",
               style: TextStyle(
-                color: Colors.indigo,
+                color: enableDark ? Colors.indigoAccent : Colors.indigo,
                 fontWeight: FontWeight.w400,
                 fontSize: 22,
               ),
@@ -54,7 +59,9 @@ class StateDetailsPageState extends State<StateDetailsPage> {
           ],
         ),
       ),
-      backgroundColor: Color.fromRGBO(235, 240, 255, 1),
+      backgroundColor: enableDark
+          ? Colors.white.withOpacity(0.2)
+          : Color.fromRGBO(235, 240, 255, 1),
       body: Column(
         children: <Widget>[
           Padding(
@@ -65,27 +72,41 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                 controller: _textEditingController,
                 decoration: InputDecoration(
                   labelText: "Search State",
+                  labelStyle: TextStyle(
+                      color: enableDark ? Colors.white : Colors.black),
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 2, horizontal: 20),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide(width: 2, color: Colors.deepPurple),
+                    borderSide: BorderSide(
+                      width: 2,
+                      color: enableDark
+                          ? Colors.deepPurpleAccent
+                          : Colors.deepPurple,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide(width: 2, color: Colors.deepPurple),
+                    borderSide: BorderSide(
+                      width: 2,
+                      color: enableDark
+                          ? Colors.deepPurpleAccent
+                          : Colors.deepPurple,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25),
-                    borderSide:
-                        BorderSide(width: 3, color: Colors.deepPurpleAccent),
+                    borderSide: BorderSide(
+                      width: 3,
+                      color: Colors.deepPurpleAccent,
+                    ),
                   ),
                 ),
                 style: TextStyle(
-                  fontFamily: "Rubik",
-                  fontSize: 17,
-                  fontWeight: FontWeight.w500,
-                ),
+                    fontFamily: "Rubik",
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    color: enableDark ? Colors.white : Colors.black),
                 onChanged: (value) {
                   setState(() {
                     searchKeyWord = value.toLowerCase();
@@ -106,6 +127,9 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                 return Padding(
                   padding: EdgeInsets.only(bottom: 25),
                   child: RoundedTile(
+                    backgroundColor: enableDark
+                        ? Color.fromRGBO(20, 20, 20, 1)
+                        : Colors.white,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
@@ -115,6 +139,7 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                             fontFamily: "Rubik",
                             fontWeight: FontWeight.w600,
                             fontSize: 20,
+                            color: enableDark ? Colors.white : Colors.black,
                           ),
                         ),
                         SizedBox(height: 10),
@@ -126,7 +151,9 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontFamily: "Rubik",
-                                color: Colors.deepPurple.shade700,
+                                color: enableDark
+                                ? Colors.indigoAccent.shade100
+                                : Colors.deepPurple.shade700,
                               ),
                             ),
                             Row(
@@ -134,7 +161,9 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                                 Text(
                                   "${data[index]["deltaconfirmed"]}",
                                   style: TextStyle(
-                                    color: Colors.blueGrey,
+                                    color: enableDark
+                                        ? Colors.blueGrey.shade200
+                                        : Colors.blueGrey,
                                     fontWeight: FontWeight.w500,
                                     fontFamily: "Rubik",
                                     fontSize: 18,
@@ -143,7 +172,9 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                                 Icon(
                                   Icons.arrow_upward,
                                   size: 17,
-                                  color: Colors.blueGrey,
+                                  color: enableDark
+                                      ? Colors.blueGrey.shade200
+                                      : Colors.blueGrey,
                                 ),
                                 Text(
                                   "${data[index]["confirmed"]}".padLeft(7),
@@ -165,7 +196,9 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontFamily: "Rubik",
-                                color: Colors.deepPurple.shade700,
+                                color: enableDark
+                                    ? Colors.indigoAccent.shade100
+                                    : Colors.deepPurple.shade700,
                               ),
                             ),
                             Row(
@@ -173,7 +206,9 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                                 Text(
                                   "${data[index]["deltarecovered"]}",
                                   style: TextStyle(
-                                    color: Colors.green,
+                                    color: enableDark
+                                        ? Colors.greenAccent
+                                        : Colors.green,
                                     fontWeight: FontWeight.w500,
                                     fontFamily: "Rubik",
                                     fontSize: 18,
@@ -182,7 +217,9 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                                 Icon(
                                   Icons.arrow_upward,
                                   size: 17,
-                                  color: Colors.green,
+                                  color: enableDark
+                                      ? Colors.greenAccent
+                                      : Colors.green,
                                 ),
                                 Text(
                                   "${data[index]["recovered"]}".padLeft(7),
@@ -204,7 +241,9 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                               style: TextStyle(
                                 fontSize: 17,
                                 fontFamily: "Rubik",
-                                color: Colors.deepPurple.shade700,
+                                color: enableDark
+                                    ? Colors.indigoAccent.shade100
+                                    : Colors.deepPurple.shade700,
                               ),
                             ),
                             Row(
@@ -212,7 +251,9 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                                 Text(
                                   "${data[index]["deltadeaths"]}",
                                   style: TextStyle(
-                                    color: Colors.red,
+                                    color: enableDark
+                                        ? Colors.redAccent.shade100
+                                        : Colors.redAccent,
                                     fontWeight: FontWeight.w500,
                                     fontFamily: "Rubik",
                                     fontSize: 18,
@@ -221,7 +262,9 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                                 Icon(
                                   Icons.arrow_upward,
                                   size: 17,
-                                  color: Colors.red,
+                                  color: enableDark
+                                      ? Colors.redAccent.shade100
+                                      : Colors.redAccent,
                                 ),
                                 Text(
                                   "${data[index]["deaths"]}".padLeft(7),

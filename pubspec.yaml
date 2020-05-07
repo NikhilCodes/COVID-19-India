@@ -24,6 +24,7 @@ dependencies:
   syncfusion_flutter_charts:
   pull_to_refresh:
   http:
+  lite_rolling_switch:
   shared_preferences:
   flutter:
     sdk: flutter

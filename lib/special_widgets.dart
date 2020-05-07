@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 class RoundedTile extends StatefulWidget {
-  RoundedTile({Key key, @required this.child, this.oneTap}) : super(key: key);
+  RoundedTile({Key key, @required this.child, this.oneTap, this.backgroundColor}) : super(key: key);
 
   final Widget child;
   final Function oneTap;
+  final Color backgroundColor;
 
   @override
   State<StatefulWidget> createState() {
@@ -22,7 +23,7 @@ class _RoundedTileState extends State<RoundedTile> {
         onTap: widget.oneTap,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: widget.backgroundColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
