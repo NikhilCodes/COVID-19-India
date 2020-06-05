@@ -181,6 +181,7 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                                   style: TextStyle(
                                     fontFamily: "monospace",
                                     fontSize: 18,
+                                    color: enableDark ? Colors.white : Colors.black,
                                   ),
                                 ),
                               ],
@@ -226,6 +227,7 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                                   style: TextStyle(
                                     fontFamily: "monospace",
                                     fontSize: 18,
+                                    color: enableDark ? Colors.white : Colors.black,
                                   ),
                                 ),
                               ],
@@ -271,6 +273,7 @@ class StateDetailsPageState extends State<StateDetailsPage> {
                                   style: TextStyle(
                                     fontFamily: "monospace",
                                     fontSize: 18,
+                                    color: enableDark ? Colors.white : Colors.black,
                                   ),
                                 ),
                               ],
