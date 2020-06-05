@@ -8,8 +8,6 @@ import 'package:syncfusion_flutter_core/core.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  SyncfusionLicense.registerLicense(
-      "NT8mJyc2IWhia31ifWN9Z2FoYmF8YGJ8ampqanNiYmlmamlmanMDHmg9Ojg7Oj99PTorNj8TND4yOj99MDw+");
   runApp(MyApp(prefs: prefs));
 }
 
